@@ -216,3 +216,40 @@ axes[1, 2].set_ylabel('Frequency')
 
 plt.tight_layout()
 plt.show()
+
+# Assume your data is in a pandas DataFrame 'df'
+# Calculate the mean and standard deviation for each variable
+means = df.mean()
+stds = df.std()
+
+# Calculate the Z-scores
+z_scores = (df - means) / stds
+
+# Identify data points with a Z-score greater than 3 or less than -3 (99.7% confidence interval)
+outliers = z_scores[(z_scores > 3) | (z_scores < -3)]
+
+# Print the outliers
+print(outliers)
+
+# Choose the variable to represent bubble size
+bubble_size_var = 'RH'  # or 'BP' for Barometric Pressure
+
+# Create the figure and axis
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Plot the bubble chart
+bubble_size = df[bubble_size_var]
+ax.scatter(df['GHI'], df['Tamb'], s=bubble_size * 10, c=df['WS'], alpha=0.6)
+
+# Add labels and title
+ax.set_xlabel('GHI (W/m^2)')
+ax.set_ylabel('Tamb (°C)')
+ax.set_title(f'GHI vs Tamb vs WS, bubble size represents {bubble_size_var}')
+
+# Add a colorbar for wind speed
+cbar = ax.figure.colorbar(ax.collections[0], ax=ax)
+cbar.set_label('Wind Speed (m/s)')
+
+# Adjust the layout
+plt.tight_layout()
+plt.show()

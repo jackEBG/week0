@@ -201,3 +201,113 @@ axes[1, 2].set_ylabel('Frequency')
 
 plt.tight_layout()
 plt.show()
+
+# Plot histograms
+axes[0, 0].hist(df['GHI'], bins=30)
+axes[0, 0].set_title('Global Horizontal Irradiance (GHI)')
+axes[0, 0].set_xlabel('GHI (W/m^2)')
+axes[0, 0].set_ylabel('Frequency')
+
+axes[0, 1].hist(df['DNI'], bins=30)
+axes[0, 1].set_title('Direct Normal Irradiance (DNI)')
+axes[0, 1].set_xlabel('DNI (W/m^2)')
+axes[0, 1].set_ylabel('Frequency')
+
+axes[0, 2].hist(df['DHI'], bins=30)
+axes[0, 2].set_title('Diffuse Horizontal Irradiance (DHI)')
+axes[0, 2].set_xlabel('DHI (W/m^2)')
+axes[0, 2].set_ylabel('Frequency')
+
+axes[1, 0].hist(df['WS'], bins=30)
+axes[1, 0].set_title('Wind Speed (WS)')
+axes[1, 0].set_xlabel('WS (m/s)')
+axes[1, 0].set_ylabel('Frequency')
+
+axes[1, 1].hist(df['Tamb'], bins=30)
+axes[1, 1].set_title('Ambient Temperature (Tamb)')
+axes[1, 1].set_xlabel('Tamb (°C)')
+axes[1, 1].set_ylabel('Frequency')
+
+axes[1, 2].hist(df['RH'], bins=30)
+axes[1, 2].set_title('Relative Humidity (RH)')
+axes[1, 2].set_xlabel('RH (%)')
+axes[1, 2].set_ylabel('Frequency')
+
+plt.tight_layout()
+plt.show()
+
+# Assume your data is in a pandas DataFrame 'df'
+# Calculate the mean and standard deviation for each variable
+means = df.mean()
+stds = df.std()
+
+# Calculate the Z-scores
+z_scores = (df - means) / stds
+
+# Identify data points with a Z-score greater than 3 or less than -3 (99.7% confidence interval)
+outliers = z_scores[(z_scores > 3) | (z_scores < -3)]
+
+# Print the outliers
+print(outliers)
+
+# Choose the variable to represent bubble size
+bubble_size_var = 'RH'  # or 'BP' for Barometric Pressure
+
+# Create the figure and axis
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Plot the bubble chart
+bubble_size = df[bubble_size_var]
+ax.scatter(df['GHI'], df['Tamb'], s=bubble_size * 10, c=df['WS'], alpha=0.6)
+
+# Add labels and title
+ax.set_xlabel('GHI (W/m^2)')
+ax.set_ylabel('Tamb (°C)')
+ax.set_title(f'GHI vs Tamb vs WS, bubble size represents {bubble_size_var}')
+
+# Add a colorbar for wind speed
+cbar = ax.figure.colorbar(ax.collections[0], ax=ax)
+cbar.set_label('Wind Speed (m/s)')
+
+# Adjust the layout
+plt.tight_layout()
+plt.show()
+
+# Check for missing values
+print(df.isnull().sum())
+
+# Fill missing values in the 'Comments' column with an empty string
+df['Comments'] = df['Comments'].fillna('')
+
+# 2. Handle anomalies
+# Check for outliers using Z-scores
+from scipy.stats import zscore
+z = np.abs(zscore(df))
+outliers = (z > 3).any(axis=1)
+print(f"Number of outliers: {outliers.sum()}")
+
+# Remove outliers (optional, depending on your requirements)
+df = df[~outliers]
+
+# 3. Handle invalid or erroneous data
+# Check for any invalid or erroneous data (e.g., negative values for GHI, DNI, DHI, or WS)
+invalid_data = (df['GHI'] < 0) | (df['DNI'] < 0) | (df['DHI'] < 0) | (df['WS'] < 0)
+print(f"Number of invalid data points: {invalid_data.sum()}")
+
+# Remove invalid data points (optional, depending on your requirements)
+df = df[~invalid_data]
+
+# 4. Handle categorical variables
+# Check for any categorical variables and encode them if necessary
+categorical_vars = df.select_dtypes(include='object').columns
+for col in categorical_vars:
+    df[col] = df[col].astype('category')
+    df[col] = df[col].cat.codes
+
+# 5. Handle duplicates
+# Check for and remove any duplicate rows
+print(f"Number of duplicate rows: {df.duplicated().sum()}")
+df.drop_duplicates(inplace=True)
+
+# 6. Save the cleaned dataset
+df.to_csv('cleaned_dataset.csv', index=False)
