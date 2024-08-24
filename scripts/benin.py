@@ -161,3 +161,58 @@ ax.set_xlabel('Wind Direction (degrees)')
 ax.set_ylabel('Wind Speed (m/s)')
 
 plt.show()
+
+
+fig, ax1 = plt.subplots(figsize=(12, 6))
+
+ax1.plot(df.index, df['Tamb'], color='red', label='Ambient Temperature')
+ax2 = ax1.twinx()
+ax2.plot(df.index, df['RH'], color='blue', label='Relative Humidity')
+
+ax1.set_xlabel('Time')
+ax1.set_ylabel('Ambient Temperature (°C)', color='red')
+ax2.set_ylabel('Relative Humidity (%)', color='blue')
+ax1.set_title('Ambient Temperature and Relative Humidity')
+ax1.legend(loc='upper left')
+ax2.legend(loc='upper right')
+
+plt.show()
+
+
+
+# Create a figure with 2x3 subplots
+fig, axes = plt.subplots(2, 3, figsize=(16, 10))
+
+# Plot histograms
+axes[0, 0].hist(df['GHI'], bins=30)
+axes[0, 0].set_title('Global Horizontal Irradiance (GHI)')
+axes[0, 0].set_xlabel('GHI (W/m^2)')
+axes[0, 0].set_ylabel('Frequency')
+
+axes[0, 1].hist(df['DNI'], bins=30)
+axes[0, 1].set_title('Direct Normal Irradiance (DNI)')
+axes[0, 1].set_xlabel('DNI (W/m^2)')
+axes[0, 1].set_ylabel('Frequency')
+
+axes[0, 2].hist(df['DHI'], bins=30)
+axes[0, 2].set_title('Diffuse Horizontal Irradiance (DHI)')
+axes[0, 2].set_xlabel('DHI (W/m^2)')
+axes[0, 2].set_ylabel('Frequency')
+
+axes[1, 0].hist(df['WS'], bins=30)
+axes[1, 0].set_title('Wind Speed (WS)')
+axes[1, 0].set_xlabel('WS (m/s)')
+axes[1, 0].set_ylabel('Frequency')
+
+axes[1, 1].hist(df['Tamb'], bins=30)
+axes[1, 1].set_title('Ambient Temperature (Tamb)')
+axes[1, 1].set_xlabel('Tamb (°C)')
+axes[1, 1].set_ylabel('Frequency')
+
+axes[1, 2].hist(df['RH'], bins=30)
+axes[1, 2].set_title('Relative Humidity (RH)')
+axes[1, 2].set_xlabel('RH (%)')
+axes[1, 2].set_ylabel('Frequency')
+
+plt.tight_layout()
+plt.show()
